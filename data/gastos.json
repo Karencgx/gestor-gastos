@@ -1,0 +1,7 @@
+[ {
+  "id" : 1,
+  "descripcion" : "Almuerzo",
+  "monto" : 18000,
+  "categoria" : "Alimentación",
+  "fecha" : [ 2026, 8, 16 ]
+} ]

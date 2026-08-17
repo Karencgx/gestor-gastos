@@ -1,0 +1,438 @@
+package com.gestorgastos.service;
+
+import com.gestorgastos.model.Gasto;
+import com.gestorgastos.repository.GastoRepository;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class GestorGastosTest {
+
+    @Test
+    void debeRegistrarUnGasto() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+        //Act
+        Gasto gasto = gestor.registrarGasto(
+                "Almuerzo",
+                new BigDecimal("18000"),
+                "Alimentación",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        // Assert
+        assertEquals(1, gasto.getId());
+        assertEquals(1, repository.obtenerTodos().size());
+        assertTrue(repository.obtenerTodos().contains(gasto));
+    }
+
+    private static class FakeGastoRepository implements GastoRepository {
+
+        private final List<Gasto> gastos = new ArrayList<>();
+
+        @Override
+        public void guardar(Gasto gasto) {
+            gastos.add(gasto);
+        }
+
+        @Override
+        public List<Gasto> obtenerTodos() {
+            return gastos;
+        }
+
+        @Override
+        public Optional<Gasto> buscarPorId(int id) {
+            return gastos.stream()
+                    .filter(gasto -> gasto.getId() == id)
+                    .findFirst();
+        }
+
+        @Override
+        public void eliminar(int id) {
+            gastos.removeIf(gasto -> gasto.getId() == id);
+        }
+    }
+
+    @Test
+    void noDebePermitirUnMontoMenorOIgualACero() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "Almuerzo",
+                        new BigDecimal("-5000"),
+                        "Alimentación",
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void noDebePermitirMontoNulo() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "Almuerzo",
+                        null,
+                        "Alimentación",
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void noDebePermitirDescripcionVacia() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "",
+                        new BigDecimal("18000"),
+                        "Alimentación",
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void noDebePermitirDescripcionConSoloEspacios() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "    ",
+                        new BigDecimal("18000"),
+                        "Alimentación",
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void noDebePermitirDescripcionNula() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        null,
+                        new BigDecimal("18000"),
+                        "Alimentación",
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void noDebePermitirCategoriaVacia() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "Almuerzo",
+                        new BigDecimal("18000"),
+                        "",
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void noDebePermitirCategoriaConSoloEspacios() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "Almuerzo",
+                        new BigDecimal("18000"),
+                        "    ",
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void noDebePermitirCategoriaNula() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "Almuerzo",
+                        new BigDecimal("18000"),
+                        null,
+                        LocalDate.of(2026, 8, 16)
+                )
+        );
+    }
+
+    @Test
+    void debeGenerarIdsConsecutivos() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act
+        Gasto primerGasto = gestor.registrarGasto(
+                "Almuerzo",
+                new BigDecimal("18000"),
+                "Alimentación",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        Gasto segundoGasto = gestor.registrarGasto(
+                "Transporte",
+                new BigDecimal("5000"),
+                "Transporte",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        // Assert
+        assertEquals(1, primerGasto.getId());
+        assertEquals(2, segundoGasto.getId());
+    }
+
+    @Test
+    void debeGenerarElSiguienteIdDisponible() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+
+        repository.guardar(new Gasto(
+                5,
+                "Gasto existente",
+                new BigDecimal("10000"),
+                "Otros",
+                LocalDate.of(2026, 8, 15)
+        ));
+
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act
+        Gasto nuevoGasto = gestor.registrarGasto(
+                "Almuerzo",
+                new BigDecimal("18000"),
+                "Alimentación",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        // Assert
+        assertEquals(6, nuevoGasto.getId());
+    }
+
+    @Test
+    void noDebePermitirFechaNula() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act + Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestor.registrarGasto(
+                        "Almuerzo",
+                        new BigDecimal("18000"),
+                        "Alimentación",
+                        null
+                )
+        );
+    }
+
+    @Test
+    void debePermitirUnaFechaValida() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        LocalDate fecha = LocalDate.of(2026, 8, 16);
+
+        // Act
+        Gasto gasto = gestor.registrarGasto(
+                "Almuerzo",
+                new BigDecimal("18000"),
+                "Alimentación",
+                fecha
+        );
+
+        // Assert
+        assertEquals(fecha, gasto.getFecha());
+    }
+
+    @Test
+    void debeEncontrarUnGastoPorId() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        Gasto gasto = gestor.registrarGasto(
+                "Almuerzo",
+                new BigDecimal("18000"),
+                "Alimentación",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        // Act
+        Optional<Gasto> resultado = gestor.buscarGastoPorId(gasto.getId());
+
+        // Assert
+        assertTrue(resultado.isPresent());
+        assertEquals(gasto, resultado.get());
+    }
+
+    @Test
+    void debeRetornarVacioSiElGastoNoExiste() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act
+        Optional<Gasto> resultado = gestor.buscarGastoPorId(999);
+
+        // Assert
+        assertTrue(resultado.isEmpty());
+    }
+
+    @Test
+    void debeEliminarUnGastoExistente() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        Gasto gasto = gestor.registrarGasto(
+                "Almuerzo",
+                new BigDecimal("18000"),
+                "Alimentación",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        // Act
+        boolean eliminado = gestor.eliminarGasto(gasto.getId());
+
+        // Assert
+        assertTrue(eliminado);
+        assertTrue(repository.obtenerTodos().isEmpty());
+    }
+    @Test
+    void debeRetornarFalseSiElGastoNoExisteAlEliminarlo() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act
+        boolean eliminado = gestor.eliminarGasto(999);
+
+        // Assert
+        assertFalse(eliminado);
+    }
+
+    @Test
+    void debeCalcularElTotalDeLosGastos() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        gestor.registrarGasto(
+                "Almuerzo",
+                new BigDecimal("18000"),
+                "Alimentación",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        gestor.registrarGasto(
+                "Transporte",
+                new BigDecimal("5000"),
+                "Transporte",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        gestor.registrarGasto(
+                "Café",
+                new BigDecimal("3500"),
+                "Alimentación",
+                LocalDate.of(2026, 8, 16)
+        );
+
+        // Act
+        BigDecimal total = gestor.calcularTotal();
+
+        // Assert
+        assertEquals(
+                new BigDecimal("26500"),
+                total
+        );
+    }
+
+    @Test
+    void debeRetornarCeroCuandoNoHayGastos() {
+
+        // Arrange
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Act
+        BigDecimal total = gestor.calcularTotal();
+
+        // Assert
+        assertEquals(
+                BigDecimal.ZERO,
+                total
+        );
+    }
+
+
+}
