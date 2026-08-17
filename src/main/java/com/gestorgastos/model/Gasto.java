@@ -76,4 +76,15 @@ public class Gasto {
                 fecha
         );
     }
+
+    @Override
+    public String toString() {
+        return "Gasto{" +
+                "id=" + id +
+                ", descripcion='" + descripcion + '\'' +
+                ", monto=" + monto +
+                ", categoria=" + categoria +
+                ", fecha=" + fecha +
+                '}';
+    }
 }
