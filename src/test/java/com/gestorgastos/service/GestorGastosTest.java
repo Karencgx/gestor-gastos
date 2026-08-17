@@ -572,5 +572,173 @@ class GestorGastosTest {
         );
     }
 
+    @Test
+    void medirRendimientoRegistrarGasto() {
+
+        FakeGastoRepository repository = new FakeGastoRepository();
+        GestorGastos gestor = new GestorGastos(repository);
+
+        // Cargar datos de prueba
+        for (int i = 1; i <= 10000; i++) {
+            repository.guardar(
+                    new Gasto(
+                            i,
+                            "Gasto " + i,
+                            new BigDecimal("10000"),
+                            "Alimentación",
+                            LocalDate.of(2026, 8, 16)
+                    )
+            );
+        }
+
+        // Medición
+        long inicio = System.nanoTime();
+
+        for (int i = 0; i < 100; i++) {
+            gestor.registrarGasto(
+                    "Gasto de prueba " + i,
+                    new BigDecimal("18000"),
+                    "Alimentación",
+                    LocalDate.of(2026, 8, 16)
+            );
+        }
+
+        long fin = System.nanoTime();
+
+        long tiempoTotal = fin - inicio;
+        double tiempoPromedio =
+                (double) tiempoTotal / 100;
+
+        System.out.println(
+                "Tiempo promedio: "
+                        + tiempoPromedio / 1_000_000
+                        + " ms"
+        );
+    }
+
+    @Test
+    void medirRendimientoCalcularTotal() {
+
+        // Arrange
+        FakeGastoRepository repository1000 = crearRepositoryConGastos(1000);
+        FakeGastoRepository repository10000 = crearRepositoryConGastos(10000);
+        FakeGastoRepository repository100000 = crearRepositoryConGastos(100000);
+
+        GestorGastos gestor1000 = new GestorGastos(repository1000);
+        GestorGastos gestor10000 = new GestorGastos(repository10000);
+        GestorGastos gestor100000 = new GestorGastos(repository100000);
+
+        // Act
+        double tiempo1000 = medirTiempoCalcularTotal(gestor1000);
+        double tiempo10000 = medirTiempoCalcularTotal(gestor10000);
+        double tiempo100000 = medirTiempoCalcularTotal(gestor100000);
+
+        // Assert
+        assertTrue(tiempo1000 > 0);
+        assertTrue(tiempo10000 > 0);
+        assertTrue(tiempo100000 > 0);
+
+        System.out.println("1.000 registros: " + tiempo1000 + " ms");
+        System.out.println("10.000 registros: " + tiempo10000 + " ms");
+        System.out.println("100.000 registros: " + tiempo100000 + " ms");
+    }
+
+    private FakeGastoRepository crearRepositoryConGastos(int cantidad) {
+
+        FakeGastoRepository repository = new FakeGastoRepository();
+
+        for (int i = 1; i <= cantidad; i++) {
+            repository.guardar(
+                    new Gasto(
+                            i,
+                            "Gasto " + i,
+                            new BigDecimal("10000"),
+                            "Alimentación",
+                            LocalDate.of(2026, 8, 16)
+                    )
+            );
+        }
+
+        return repository;
+    }
+
+    private double medirTiempoCalcularTotal(GestorGastos gestor) {
+
+        int ejecuciones = 100;
+
+        long inicio = System.nanoTime();
+
+        for (int i = 0; i < ejecuciones; i++) {
+            gestor.calcularTotal();
+        }
+
+        long fin = System.nanoTime();
+
+        return (double) (fin - inicio)
+                / ejecuciones
+                / 1_000_000;
+    }
+
+    @Test
+    void medirRendimientoCalcularTotalPorCategoria() {
+
+        // Arrange
+        FakeGastoRepository repository1000 = crearRepositoryConGastos(1000);
+        FakeGastoRepository repository10000 = crearRepositoryConGastos(10000);
+        FakeGastoRepository repository100000 = crearRepositoryConGastos(100000);
+
+        GestorGastos gestor1000 = new GestorGastos(repository1000);
+        GestorGastos gestor10000 = new GestorGastos(repository10000);
+        GestorGastos gestor100000 = new GestorGastos(repository100000);
+
+        // Act
+        double tiempo1000 =
+                medirTiempoCalcularTotalPorCategoria(gestor1000);
+
+        double tiempo10000 =
+                medirTiempoCalcularTotalPorCategoria(gestor10000);
+
+        double tiempo100000 =
+                medirTiempoCalcularTotalPorCategoria(gestor100000);
+
+        // Assert
+        assertTrue(tiempo1000 > 0);
+        assertTrue(tiempo10000 > 0);
+        assertTrue(tiempo100000 > 0);
+
+        System.out.println(
+                "1.000 registros: "
+                        + tiempo1000 + " ms"
+        );
+
+        System.out.println(
+                "10.000 registros: "
+                        + tiempo10000 + " ms"
+        );
+
+        System.out.println(
+                "100.000 registros: "
+                        + tiempo100000 + " ms"
+        );
+    }
+
+    private double medirTiempoCalcularTotalPorCategoria(
+            GestorGastos gestor) {
+
+        int ejecuciones = 100;
+
+        long inicio = System.nanoTime();
+
+        for (int i = 0; i < ejecuciones; i++) {
+            gestor.calcularTotalPorCategoria("Alimentación");
+        }
+
+        long fin = System.nanoTime();
+
+        return (double) (fin - inicio)
+                / ejecuciones
+                / 1_000_000;
+    }
+
 
 }

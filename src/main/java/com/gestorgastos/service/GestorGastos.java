@@ -22,30 +22,10 @@ public class GestorGastos {
             String categoria,
             LocalDate fecha
     ) {
-
-        if (monto == null || monto.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException(
-                    "El monto debe ser mayor que cero"
-            );
-        }
-
-        if (descripcion == null || descripcion.isBlank()) {
-            throw new IllegalArgumentException(
-                    "La descripción no puede estar vacía"
-            );
-        }
-
-        if (categoria == null || categoria.isBlank()) {
-            throw new IllegalArgumentException(
-                    "La categoría no puede estar vacía"
-            );
-        }
-
-        if (fecha == null) {
-            throw new IllegalArgumentException(
-                    "La fecha no puede ser nula"
-            );
-        }
+        validarMonto(monto);
+        validarDescripcion(descripcion);
+        validarCategoria(categoria);
+        validarFecha(fecha);
 
         int siguienteId = repository.obtenerTodos()
                 .stream()
@@ -64,6 +44,38 @@ public class GestorGastos {
         repository.guardar(gasto);
 
         return gasto;
+    }
+
+    private void validarMonto(BigDecimal monto) {
+        if (monto == null || monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException(
+                    "El monto debe ser mayor que cero"
+            );
+        }
+    }
+
+    private void validarDescripcion(String descripcion) {
+        if (descripcion == null || descripcion.isBlank()) {
+            throw new IllegalArgumentException(
+                    "La descripción no puede estar vacía"
+            );
+        }
+    }
+
+    private void validarCategoria(String categoria) {
+        if (categoria == null || categoria.isBlank()) {
+            throw new IllegalArgumentException(
+                    "La categoría no puede estar vacía"
+            );
+        }
+    }
+
+    private void validarFecha(LocalDate fecha) {
+        if (fecha == null) {
+            throw new IllegalArgumentException(
+                    "La fecha no puede ser nula"
+            );
+        }
     }
 
     public Optional<Gasto> buscarGastoPorId(int id) {
