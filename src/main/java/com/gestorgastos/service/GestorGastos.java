@@ -5,6 +5,7 @@ import com.gestorgastos.repository.GastoRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public class GestorGastos {
@@ -85,6 +86,27 @@ public class GestorGastos {
 
         return repository.obtenerTodos()
                 .stream()
+                .map(Gasto::getMonto)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public List<Gasto> listarGastos() {
+        return repository.obtenerTodos();
+    }
+
+    public BigDecimal calcularTotalPorCategoria(String categoria) {
+
+        if (categoria == null || categoria.isBlank()) {
+            throw new IllegalArgumentException(
+                    "La categoría no puede estar vacía"
+            );
+        }
+
+        return repository.obtenerTodos()
+                .stream()
+                .filter(gasto ->
+                        gasto.getCategoria().equalsIgnoreCase(categoria)
+                )
                 .map(Gasto::getMonto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
