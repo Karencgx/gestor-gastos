@@ -1,5 +1,6 @@
 package com.gestorgastos.service;
 
+import com.gestorgastos.model.Categoria;
 import com.gestorgastos.model.Gasto;
 import com.gestorgastos.repository.GastoRepository;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ class GestorGastosTest {
         Gasto gasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
@@ -74,7 +75,7 @@ class GestorGastosTest {
                 () -> gestor.registrarGasto(
                         "Almuerzo",
                         new BigDecimal("-5000"),
-                        "Alimentación",
+                        Categoria.ALIMENTACION,
                         LocalDate.of(2026, 8, 16)
                 )
         );
@@ -93,7 +94,7 @@ class GestorGastosTest {
                 () -> gestor.registrarGasto(
                         "Almuerzo",
                         null,
-                        "Alimentación",
+                        Categoria.ALIMENTACION,
                         LocalDate.of(2026, 8, 16)
                 )
         );
@@ -112,7 +113,7 @@ class GestorGastosTest {
                 () -> gestor.registrarGasto(
                         "",
                         new BigDecimal("18000"),
-                        "Alimentación",
+                        Categoria.ALIMENTACION,
                         LocalDate.of(2026, 8, 16)
                 )
         );
@@ -131,7 +132,7 @@ class GestorGastosTest {
                 () -> gestor.registrarGasto(
                         "    ",
                         new BigDecimal("18000"),
-                        "Alimentación",
+                        Categoria.ALIMENTACION,
                         LocalDate.of(2026, 8, 16)
                 )
         );
@@ -150,49 +151,12 @@ class GestorGastosTest {
                 () -> gestor.registrarGasto(
                         null,
                         new BigDecimal("18000"),
-                        "Alimentación",
+                        Categoria.ALIMENTACION,
                         LocalDate.of(2026, 8, 16)
                 )
         );
     }
 
-    @Test
-    void noDebePermitirCategoriaVacia() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
-        // Act + Assert
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> gestor.registrarGasto(
-                        "Almuerzo",
-                        new BigDecimal("18000"),
-                        "",
-                        LocalDate.of(2026, 8, 16)
-                )
-        );
-    }
-
-    @Test
-    void noDebePermitirCategoriaConSoloEspacios() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
-        // Act + Assert
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> gestor.registrarGasto(
-                        "Almuerzo",
-                        new BigDecimal("18000"),
-                        "    ",
-                        LocalDate.of(2026, 8, 16)
-                )
-        );
-    }
 
     @Test
     void noDebePermitirCategoriaNula() {
@@ -224,14 +188,14 @@ class GestorGastosTest {
         Gasto primerGasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
         Gasto segundoGasto = gestor.registrarGasto(
                 "Transporte",
                 new BigDecimal("5000"),
-                "Transporte",
+                Categoria.TRANSPORTE,
                 LocalDate.of(2026, 8, 16)
         );
 
@@ -250,7 +214,7 @@ class GestorGastosTest {
                 5,
                 "Gasto existente",
                 new BigDecimal("10000"),
-                "Otros",
+                Categoria.OTROS,
                 LocalDate.of(2026, 8, 15)
         ));
 
@@ -260,7 +224,7 @@ class GestorGastosTest {
         Gasto nuevoGasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
@@ -281,7 +245,7 @@ class GestorGastosTest {
                 () -> gestor.registrarGasto(
                         "Almuerzo",
                         new BigDecimal("18000"),
-                        "Alimentación",
+                        Categoria.ALIMENTACION,
                         null
                 )
         );
@@ -300,7 +264,7 @@ class GestorGastosTest {
         Gasto gasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 fecha
         );
 
@@ -318,7 +282,7 @@ class GestorGastosTest {
         Gasto gasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
@@ -354,7 +318,7 @@ class GestorGastosTest {
         Gasto gasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
@@ -389,21 +353,21 @@ class GestorGastosTest {
         gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
         gestor.registrarGasto(
                 "Transporte",
                 new BigDecimal("5000"),
-                "Transporte",
+                Categoria.TRANSPORTE,
                 LocalDate.of(2026, 8, 16)
         );
 
         gestor.registrarGasto(
                 "Café",
                 new BigDecimal("3500"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
@@ -444,14 +408,14 @@ class GestorGastosTest {
         Gasto primerGasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
         Gasto segundoGasto = gestor.registrarGasto(
                 "Transporte",
                 new BigDecimal("5000"),
-                "Transporte",
+                Categoria.TRANSPORTE,
                 LocalDate.of(2026, 8, 16)
         );
 
@@ -488,27 +452,27 @@ class GestorGastosTest {
         gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
         gestor.registrarGasto(
                 "Café",
                 new BigDecimal("3500"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
         gestor.registrarGasto(
                 "Transporte",
                 new BigDecimal("5000"),
-                "Transporte",
+                Categoria.TRANSPORTE,
                 LocalDate.of(2026, 8, 16)
         );
 
         // Act
         BigDecimal total = gestor.calcularTotalPorCategoria(
-                "Alimentación"
+                Categoria.ALIMENTACION
         );
 
         // Assert
@@ -528,13 +492,13 @@ class GestorGastosTest {
         gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
-                "Alimentación",
+                Categoria.ALIMENTACION,
                 LocalDate.of(2026, 8, 16)
         );
 
         // Act
         BigDecimal total = gestor.calcularTotalPorCategoria(
-                "Educación"
+                Categoria.EDUCACION
         );
 
         // Assert
@@ -559,20 +523,6 @@ class GestorGastosTest {
     }
 
     @Test
-    void noDebePermitirCategoriaVaciaAlCalcularTotal() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
-        // Act + Assert
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> gestor.calcularTotalPorCategoria("")
-        );
-    }
-
-    @Test
     void medirRendimientoRegistrarGasto() {
 
         FakeGastoRepository repository = new FakeGastoRepository();
@@ -585,7 +535,7 @@ class GestorGastosTest {
                             i,
                             "Gasto " + i,
                             new BigDecimal("10000"),
-                            "Alimentación",
+                            Categoria.ALIMENTACION,
                             LocalDate.of(2026, 8, 16)
                     )
             );
@@ -598,7 +548,7 @@ class GestorGastosTest {
             gestor.registrarGasto(
                     "Gasto de prueba " + i,
                     new BigDecimal("18000"),
-                    "Alimentación",
+                    Categoria.ALIMENTACION,
                     LocalDate.of(2026, 8, 16)
             );
         }
@@ -653,7 +603,7 @@ class GestorGastosTest {
                             i,
                             "Gasto " + i,
                             new BigDecimal("10000"),
-                            "Alimentación",
+                            Categoria.ALIMENTACION,
                             LocalDate.of(2026, 8, 16)
                     )
             );
@@ -730,7 +680,7 @@ class GestorGastosTest {
         long inicio = System.nanoTime();
 
         for (int i = 0; i < ejecuciones; i++) {
-            gestor.calcularTotalPorCategoria("Alimentación");
+            gestor.calcularTotalPorCategoria(Categoria.ALIMENTACION);
         }
 
         long fin = System.nanoTime();

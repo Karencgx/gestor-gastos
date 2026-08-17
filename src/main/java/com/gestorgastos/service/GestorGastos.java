@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import com.gestorgastos.model.Categoria;
 
 public class GestorGastos {
 
@@ -19,7 +20,7 @@ public class GestorGastos {
     public Gasto registrarGasto(
             String descripcion,
             BigDecimal monto,
-            String categoria,
+            Categoria categoria,
             LocalDate fecha
     ) {
         validarMonto(monto);
@@ -62,8 +63,8 @@ public class GestorGastos {
         }
     }
 
-    private void validarCategoria(String categoria) {
-        if (categoria == null || categoria.isBlank()) {
+    private void validarCategoria(Categoria categoria) {
+        if (categoria == null ) {
             throw new IllegalArgumentException(
                     "La categoría no puede estar vacía"
             );
@@ -106,9 +107,9 @@ public class GestorGastos {
         return repository.obtenerTodos();
     }
 
-    public BigDecimal calcularTotalPorCategoria(String categoria) {
+    public BigDecimal calcularTotalPorCategoria(Categoria categoria) {
 
-        if (categoria == null || categoria.isBlank()) {
+        if (categoria == null ) {
             throw new IllegalArgumentException(
                     "La categoría no puede estar vacía"
             );
@@ -117,7 +118,7 @@ public class GestorGastos {
         return repository.obtenerTodos()
                 .stream()
                 .filter(gasto ->
-                        gasto.getCategoria().equalsIgnoreCase(categoria)
+                        gasto.getCategoria()  == categoria
                 )
                 .map(Gasto::getMonto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

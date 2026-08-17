@@ -1,5 +1,6 @@
 package com.gestorgastos;
 
+import com.gestorgastos.model.Categoria;
 import com.gestorgastos.model.Gasto;
 import com.gestorgastos.repository.GastoRepository;
 import com.gestorgastos.repository.JsonGastoRepository;
@@ -112,7 +113,7 @@ public class Main {
         BigDecimal monto = new BigDecimal(valor);
 
         System.out.print("Categoría: ");
-        String categoria = scanner.nextLine();
+        Categoria categoria = seleccionarCategoria(scanner);
 
         LocalDate fecha = leerFecha();
 
@@ -125,6 +126,31 @@ public class Main {
 
         System.out.println("\nGasto registrado correctamente:");
         System.out.println(gasto);
+    }
+
+    private static Categoria seleccionarCategoria(Scanner scanner) {
+
+        System.out.println("\n--- Categorías ---");
+
+        Categoria[] categorias = Categoria.values();
+
+        for (int i = 0; i < categorias.length; i++) {
+            System.out.println(
+                    (i + 1) + ". " + categorias[i]
+            );
+        }
+
+        System.out.print("Seleccione una categoría: ");
+
+        int opcion = Integer.parseInt(scanner.nextLine());
+
+        if (opcion < 1 || opcion > categorias.length) {
+            throw new IllegalArgumentException(
+                    "Categoría inválida"
+            );
+        }
+
+        return categorias[opcion - 1];
     }
 
     private static void listarGastos(GestorGastos gestor) {
@@ -244,7 +270,7 @@ public class Main {
                 "Ingrese la categoría: "
         );
 
-        String categoria = scanner.nextLine();
+        Categoria categoria = seleccionarCategoria(scanner);
 
         BigDecimal total =
                 gestor.calcularTotalPorCategoria(

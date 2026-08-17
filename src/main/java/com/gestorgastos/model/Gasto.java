@@ -11,7 +11,7 @@ public class Gasto {
     private final int id;
     private final String descripcion;
     private final BigDecimal monto;
-    private final String categoria;
+    private final Categoria categoria;
     private final LocalDate fecha;
 
     @JsonCreator
@@ -19,7 +19,7 @@ public class Gasto {
             @JsonProperty("id") int id,
             @JsonProperty("descripcion") String descripcion,
             @JsonProperty("monto") BigDecimal monto,
-            @JsonProperty("categoria") String categoria,
+            @JsonProperty("categoria") Categoria categoria,
             @JsonProperty("fecha") LocalDate fecha
     ) {
         this.id = id;
@@ -41,7 +41,7 @@ public class Gasto {
         return monto;
     }
 
-    public String getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 
