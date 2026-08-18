@@ -11,10 +11,12 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2'
+    implementation 'io.javalin:javalin:6.6.0'
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
 }
 
 application {
-    mainClass = 'com.gestorgastos.Main'
+    mainClass = 'com.gestorgastos.web.WebServer'
 }
 
 test {
