@@ -4,6 +4,7 @@ import com.gestorgastos.model.Categoria;
 import com.gestorgastos.model.Gasto;
 import com.gestorgastos.repository.GastoRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,12 +16,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GestorGastosTest {
 
+    private FakeGastoRepository repository;
+    private GestorGastos gestor;
+
+    //Arrange común para cada prueba
+    @BeforeEach
+    void configurar() {
+        repository = new FakeGastoRepository();
+        gestor = new GestorGastos(repository);
+    }
+
     @Test
     void debeRegistrarUnGasto() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
         //Act
         Gasto gasto = gestor.registrarGasto(
                 "Almuerzo",
@@ -65,16 +73,12 @@ class GestorGastosTest {
     @Test
     void noDebePermitirUnMontoMenorOIgualACero() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         "Almuerzo",
-                        new BigDecimal("5000"),
+                        new BigDecimal("-5000"),
                         Categoria.ALIMENTACION,
                         LocalDate.of(2026, 8, 16)
                 )
@@ -86,10 +90,6 @@ class GestorGastosTest {
 
     @Test
     void noDebePermitirMontoNulo() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
 
         // Act
         IllegalArgumentException exception = assertThrows(
@@ -109,10 +109,6 @@ class GestorGastosTest {
     @Test
     void noDebePermitirDescripcionVacia() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -131,10 +127,6 @@ class GestorGastosTest {
     @Test
     void noDebePermitirDescripcionConSoloEspacios() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -152,10 +144,6 @@ class GestorGastosTest {
 
     @Test
     void noDebePermitirDescripcionNula() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
 
         // Act
         IllegalArgumentException exception = assertThrows(
@@ -176,10 +164,6 @@ class GestorGastosTest {
     @Test
     void noDebePermitirCategoriaNula() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -197,10 +181,6 @@ class GestorGastosTest {
 
     @Test
     void debeGenerarIdsConsecutivos() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
 
         // Act
         Gasto primerGasto = gestor.registrarGasto(
@@ -226,8 +206,6 @@ class GestorGastosTest {
     void debeGenerarElSiguienteIdDisponible() {
 
         // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-
         repository.guardar(new Gasto(
                 5,
                 "Gasto existente",
@@ -235,8 +213,6 @@ class GestorGastosTest {
                 Categoria.OTROS,
                 LocalDate.of(2026, 8, 15)
         ));
-
-        GestorGastos gestor = new GestorGastos(repository);
 
         // Act
         Gasto nuevoGasto = gestor.registrarGasto(
@@ -252,10 +228,6 @@ class GestorGastosTest {
 
     @Test
     void noDebePermitirFechaNula() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
 
         // Act
         IllegalArgumentException exception = assertThrows(
@@ -274,11 +246,7 @@ class GestorGastosTest {
 
     @Test
     void debePermitirUnaFechaValida() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
+        //Arrange
         LocalDate fecha = LocalDate.of(2026, 8, 16);
 
         // Act
@@ -297,9 +265,6 @@ class GestorGastosTest {
     void debeEncontrarUnGastoPorId() {
 
         // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         Gasto gasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
@@ -318,10 +283,6 @@ class GestorGastosTest {
     @Test
     void debeRetornarVacioSiElGastoNoExiste() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         Optional<Gasto> resultado = gestor.buscarGastoPorId(999);
 
@@ -333,8 +294,6 @@ class GestorGastosTest {
     void debeEliminarUnGastoExistente() {
 
         // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
 
         Gasto gasto = gestor.registrarGasto(
                 "Almuerzo",
@@ -353,10 +312,6 @@ class GestorGastosTest {
     @Test
     void debeRetornarFalseSiElGastoNoExisteAlEliminarlo() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         boolean eliminado = gestor.eliminarGasto(999);
 
@@ -368,9 +323,6 @@ class GestorGastosTest {
     void debeCalcularElTotalDeLosGastos() {
 
         // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
@@ -406,10 +358,6 @@ class GestorGastosTest {
     @Test
     void debeRetornarCeroCuandoNoHayGastos() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         BigDecimal total = gestor.calcularTotal();
 
@@ -425,9 +373,6 @@ class GestorGastosTest {
     void debeListarTodosLosGastos() {
 
         // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         Gasto primerGasto = gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
@@ -454,10 +399,6 @@ class GestorGastosTest {
     @Test
     void debeRetornarListaVaciaCuandoNoHayGastos() {
 
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         // Act
         List<Gasto> gastos = gestor.listarGastos();
 
@@ -469,9 +410,6 @@ class GestorGastosTest {
     void debeCalcularTotalPorCategoria() {
 
         // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
@@ -510,9 +448,6 @@ class GestorGastosTest {
     void debeRetornarCeroSiNoHayGastosEnLaCategoria() {
 
         // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
-
         gestor.registrarGasto(
                 "Almuerzo",
                 new BigDecimal("18000"),
@@ -535,10 +470,6 @@ class GestorGastosTest {
 
     @Test
     void noDebePermitirCategoriaNulaAlCalcularTotal() {
-
-        // Arrange
-        FakeGastoRepository repository = new FakeGastoRepository();
-        GestorGastos gestor = new GestorGastos(repository);
 
         // Act
         IllegalArgumentException exception = assertThrows(

@@ -16,4 +16,10 @@
   "monto" : 18000,
   "categoria" : "ENTRETENIMIENTO",
   "fecha" : [ 2026, 8, 18 ]
+}, {
+  "id" : 5,
+  "descripcion" : "Cine",
+  "monto" : 60000,
+  "categoria" : "ENTRETENIMIENTO",
+  "fecha" : [ 2026, 8, 21 ]
 } ]
