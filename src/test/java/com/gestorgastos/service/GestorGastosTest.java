@@ -30,9 +30,9 @@ class GestorGastosTest {
         );
 
         // Assert
-        assertEquals(1, gasto.getId());
-        assertEquals(1, repository.obtenerTodos().size());
-        assertTrue(repository.obtenerTodos().contains(gasto));
+        assertEquals(1, gasto.getId(), "El ID del gasto debería ser 1");
+        assertEquals(1, repository.obtenerTodos().size(), "Debería haber exactamente 1 gasto en el repositorio");
+        assertTrue(repository.obtenerTodos().contains(gasto), "El repositorio debería contener el gasto registrado");
     }
 
     public static class FakeGastoRepository implements GastoRepository {
@@ -69,16 +69,19 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         "Almuerzo",
-                        new BigDecimal("-5000"),
+                        new BigDecimal("5000"),
                         Categoria.ALIMENTACION,
                         LocalDate.of(2026, 8, 16)
                 )
         );
+
+        // Assert
+        assertEquals("El monto debe ser mayor que cero", exception.getMessage());
     }
 
     @Test
@@ -88,8 +91,8 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         "Almuerzo",
@@ -98,6 +101,9 @@ class GestorGastosTest {
                         LocalDate.of(2026, 8, 16)
                 )
         );
+
+        // Assert
+        assertEquals("El monto debe ser mayor que cero", exception.getMessage());
     }
 
     @Test
@@ -107,8 +113,8 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         "",
@@ -117,6 +123,9 @@ class GestorGastosTest {
                         LocalDate.of(2026, 8, 16)
                 )
         );
+
+        // Assert
+        assertEquals("La descripción no puede estar vacía", exception.getMessage());
     }
 
     @Test
@@ -126,8 +135,8 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         "    ",
@@ -136,6 +145,9 @@ class GestorGastosTest {
                         LocalDate.of(2026, 8, 16)
                 )
         );
+
+        // Assert
+        assertEquals("La descripción no puede estar vacía", exception.getMessage());
     }
 
     @Test
@@ -145,8 +157,8 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         null,
@@ -155,6 +167,9 @@ class GestorGastosTest {
                         LocalDate.of(2026, 8, 16)
                 )
         );
+
+        // Assert
+        assertEquals("La descripción no puede estar vacía", exception.getMessage());
     }
 
 
@@ -165,8 +180,8 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         "Almuerzo",
@@ -175,6 +190,9 @@ class GestorGastosTest {
                         LocalDate.of(2026, 8, 16)
                 )
         );
+
+        // Assert
+        assertEquals("La categoría no puede estar vacía", exception.getMessage());
     }
 
     @Test
@@ -200,8 +218,8 @@ class GestorGastosTest {
         );
 
         // Assert
-        assertEquals(1, primerGasto.getId());
-        assertEquals(2, segundoGasto.getId());
+        assertEquals(1, primerGasto.getId(), "El primer gasto debería tener ID 1");
+        assertEquals(2, segundoGasto.getId(), "El segundo gasto debería tener ID 2");
     }
 
     @Test
@@ -229,7 +247,7 @@ class GestorGastosTest {
         );
 
         // Assert
-        assertEquals(6, nuevoGasto.getId());
+        assertEquals(6, nuevoGasto.getId(), "El siguiente ID disponible debería ser 6");
     }
 
     @Test
@@ -239,8 +257,8 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.registrarGasto(
                         "Almuerzo",
@@ -249,6 +267,9 @@ class GestorGastosTest {
                         null
                 )
         );
+
+        // Assert
+        assertEquals("La fecha no puede ser nula", exception.getMessage());
     }
 
     @Test
@@ -269,7 +290,7 @@ class GestorGastosTest {
         );
 
         // Assert
-        assertEquals(fecha, gasto.getFecha());
+        assertEquals(fecha, gasto.getFecha(), "La fecha del gasto debería coincidir con la fecha proporcionada");
     }
 
     @Test
@@ -290,8 +311,8 @@ class GestorGastosTest {
         Optional<Gasto> resultado = gestor.buscarGastoPorId(gasto.getId());
 
         // Assert
-        assertTrue(resultado.isPresent());
-        assertEquals(gasto, resultado.get());
+        assertTrue(resultado.isPresent(), "El gasto debería existir en el repositorio");
+        assertEquals(gasto, resultado.get(), "El gasto encontrado debería coincidir con el registrado");
     }
 
     @Test
@@ -305,7 +326,7 @@ class GestorGastosTest {
         Optional<Gasto> resultado = gestor.buscarGastoPorId(999);
 
         // Assert
-        assertTrue(resultado.isEmpty());
+        assertTrue(resultado.isEmpty(), "No debería encontrar un gasto con ID inexistente");
     }
 
     @Test
@@ -326,8 +347,8 @@ class GestorGastosTest {
         boolean eliminado = gestor.eliminarGasto(gasto.getId());
 
         // Assert
-        assertTrue(eliminado);
-        assertTrue(repository.obtenerTodos().isEmpty());
+        assertTrue(eliminado, "El método debería retornar true al eliminar un gasto existente");
+        assertTrue(repository.obtenerTodos().isEmpty(), "El repositorio debería quedar vacío después de eliminar");
     }
     @Test
     void debeRetornarFalseSiElGastoNoExisteAlEliminarlo() {
@@ -340,7 +361,7 @@ class GestorGastosTest {
         boolean eliminado = gestor.eliminarGasto(999);
 
         // Assert
-        assertFalse(eliminado);
+        assertFalse(eliminado, "El método debería retornar false al intentar eliminar un gasto inexistente");
     }
 
     @Test
@@ -377,7 +398,8 @@ class GestorGastosTest {
         // Assert
         assertEquals(
                 new BigDecimal("26500"),
-                total
+                total,
+                "El total de todos los gastos debería ser 26500"
         );
     }
 
@@ -394,7 +416,8 @@ class GestorGastosTest {
         // Assert
         assertEquals(
                 BigDecimal.ZERO,
-                total
+                total,
+                "El total debería ser cero cuando no hay gastos"
         );
     }
 
@@ -423,9 +446,9 @@ class GestorGastosTest {
         List<Gasto> gastos = gestor.listarGastos();
 
         // Assert
-        assertEquals(2, gastos.size());
-        assertTrue(gastos.contains(primerGasto));
-        assertTrue(gastos.contains(segundoGasto));
+        assertEquals(2, gastos.size(), "Debería haber 2 gastos en la lista");
+        assertTrue(gastos.contains(primerGasto), "La lista debería contener el primer gasto");
+        assertTrue(gastos.contains(segundoGasto), "La lista debería contener el segundo gasto");
     }
 
     @Test
@@ -439,7 +462,7 @@ class GestorGastosTest {
         List<Gasto> gastos = gestor.listarGastos();
 
         // Assert
-        assertTrue(gastos.isEmpty());
+        assertTrue(gastos.isEmpty(), "La lista debería estar vacía cuando no hay gastos");
     }
 
     @Test
@@ -478,7 +501,8 @@ class GestorGastosTest {
         // Assert
         assertEquals(
                 new BigDecimal("21500"),
-                total
+                total,
+                "El total de gastos en ALIMENTACION debería ser 21500"
         );
     }
 
@@ -504,7 +528,8 @@ class GestorGastosTest {
         // Assert
         assertEquals(
                 BigDecimal.ZERO,
-                total
+                total,
+                "El total debería ser cero si no hay gastos en la categoría"
         );
     }
 
@@ -515,11 +540,14 @@ class GestorGastosTest {
         FakeGastoRepository repository = new FakeGastoRepository();
         GestorGastos gestor = new GestorGastos(repository);
 
-        // Act + Assert
-        assertThrows(
+        // Act
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> gestor.calcularTotalPorCategoria(null)
         );
+
+        // Assert
+        assertEquals("La categoría no puede estar vacía", exception.getMessage());
     }
 
 

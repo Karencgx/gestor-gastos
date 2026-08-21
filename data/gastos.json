@@ -5,15 +5,15 @@
   "categoria" : "ALIMENTACION",
   "fecha" : [ 2026, 8, 16 ]
 }, {
-  "id" : 2,
-  "descripcion" : "Viaje",
-  "monto" : 101,
-  "categoria" : "ENTRETENIMIENTO",
-  "fecha" : [ 2026, 8, 17 ]
-}, {
   "id" : 3,
   "descripcion" : "Cita médica",
   "monto" : 80000,
   "categoria" : "SALUD",
+  "fecha" : [ 2026, 8, 18 ]
+}, {
+  "id" : 4,
+  "descripcion" : "Spotify",
+  "monto" : 18000,
+  "categoria" : "ENTRETENIMIENTO",
   "fecha" : [ 2026, 8, 18 ]
 } ]
