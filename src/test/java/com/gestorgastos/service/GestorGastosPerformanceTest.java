@@ -2,6 +2,7 @@ package com.gestorgastos.service;
 
 import com.gestorgastos.model.Categoria;
 import com.gestorgastos.model.Gasto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.gestorgastos.service.GestorGastosTest.FakeGastoRepository;
 
@@ -11,6 +12,41 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GestorGastosPerformanceTest {
+
+    private GestorGastos gestor1000;
+    private GestorGastos gestor10000;
+    private GestorGastos gestor100000;
+
+    private record ResultadoThroughput(
+            double throughput,
+            int ejecucionesReales,
+            int excepciones
+    ) {
+    }
+
+    private record ResultadoTiempo(
+            double tiempoPromedio,
+            int ejecucionesExitosas,
+            int excepciones
+    ) {
+    }
+
+    @BeforeEach
+    void configurarGestores() {
+
+        GestorGastosTest.FakeGastoRepository repository1000 =
+                crearRepositoryConGastos(1000);
+
+        GestorGastosTest.FakeGastoRepository repository10000 =
+                crearRepositoryConGastos(10000);
+
+        GestorGastosTest.FakeGastoRepository repository100000 =
+                crearRepositoryConGastos(100000);
+
+        gestor1000 = new GestorGastos(repository1000);
+        gestor10000 = new GestorGastos(repository10000);
+        gestor100000 = new GestorGastos(repository100000);
+    }
 
     private GestorGastosTest.FakeGastoRepository crearRepositoryConGastos(int cantidad) {
 
@@ -31,160 +67,623 @@ class GestorGastosPerformanceTest {
         return repository;
     }
 
-    private double medirTiempoCalcularTotalPorCategoria(
+    // ================
+    // TIEMPO PROMEDIO
+    // ================
+
+
+    private ResultadoTiempo medirTiempoCalcularTotalPorCategoria(
             GestorGastos gestor) {
 
         int ejecuciones = 100;
+        int ejecucionesExitosas = 0;
+        int excepciones = 0;
 
-        long inicio = System.nanoTime();
+        double suma = 0;
 
         for (int i = 0; i < ejecuciones; i++) {
-            gestor.calcularTotalPorCategoria(Categoria.ALIMENTACION);
+
+            try {
+                long inicio = System.nanoTime();
+
+                gestor.calcularTotalPorCategoria(
+                        Categoria.ALIMENTACION
+                );
+
+                long fin = System.nanoTime();
+
+                suma += (fin - inicio);
+                ejecucionesExitosas++;
+
+            } catch (Exception e) {
+                excepciones++;
+
+                System.err.println(
+                        "Excepción en calcularTotalPorCategoria(): "
+                                + e.getMessage()
+                );
+            }
         }
 
-        long fin = System.nanoTime();
+        double tiempoPromedio = ejecucionesExitosas > 0
+                ? suma / ejecucionesExitosas / 1_000_000
+                : 0;
 
-        return (double) (fin - inicio)
-                / ejecuciones
-                / 1_000_000;
+        return new ResultadoTiempo(
+                tiempoPromedio,
+                ejecucionesExitosas,
+                excepciones
+        );
     }
 
-    private double medirTiempoCalcularTotal(GestorGastos gestor) {
+    private ResultadoTiempo medirTiempoCalcularTotal(
+            GestorGastos gestor) {
 
         int ejecuciones = 100;
+        int ejecucionesExitosas = 0;
+        int excepciones = 0;
 
-        long inicio = System.nanoTime();
+        double suma = 0;
 
         for (int i = 0; i < ejecuciones; i++) {
-            gestor.calcularTotal();
+
+            try {
+                long inicio = System.nanoTime();
+
+                gestor.calcularTotal();
+
+                long fin = System.nanoTime();
+
+                suma += (fin - inicio);
+                ejecucionesExitosas++;
+
+            } catch (Exception e) {
+                excepciones++;
+
+                System.err.println(
+                        "Excepción en calcularTotal(): "
+                                + e.getMessage()
+                );
+            }
         }
 
-        long fin = System.nanoTime();
+        double tiempoPromedio = ejecucionesExitosas > 0
+                ? suma / ejecucionesExitosas / 1_000_000
+                : 0;
 
-        return (double) (fin - inicio)
-                / ejecuciones
-                / 1_000_000;
+        return new ResultadoTiempo(
+                tiempoPromedio,
+                ejecucionesExitosas,
+                excepciones
+        );
     }
 
-    private double medirTiempoRegistrarGasto(GestorGastos gestor) {
+    private ResultadoTiempo medirTiempoRegistrarGasto(
+            GestorGastos gestor) {
 
-        long inicio = System.nanoTime();
+        int ejecuciones = 100;
+        int ejecucionesExitosas = 0;
+        int excepciones = 0;
 
-        for (int i = 0; i < 100; i++) {
-            gestor.registrarGasto(
-                    "Gasto de prueba " + i,
-                    new BigDecimal("18000"),
-                    Categoria.ALIMENTACION,
-                    LocalDate.of(2026, 8, 16)
-            );
+        double suma = 0;
+
+        for (int i = 0; i < ejecuciones; i++) {
+
+            try {
+                long inicio = System.nanoTime();
+
+                gestor.registrarGasto(
+                        "Gasto de prueba " + i,
+                        new BigDecimal("18000"),
+                        Categoria.ALIMENTACION,
+                        LocalDate.of(2026, 8, 16)
+                );
+
+                long fin = System.nanoTime();
+
+                suma += (fin - inicio);
+                ejecucionesExitosas++;
+
+            } catch (Exception e) {
+                excepciones++;
+
+                System.err.println(
+                        "Excepción en registrarGasto(): "
+                                + e.getMessage()
+                );
+            }
         }
 
-        long fin = System.nanoTime();
+        double tiempoPromedio = ejecucionesExitosas > 0
+                ? suma / ejecucionesExitosas / 1_000_000
+                : 0;
 
-        long tiempoTotal = fin - inicio;
-
-        return (double) tiempoTotal / 100 / 1_000_000;
+        return new ResultadoTiempo(
+                tiempoPromedio,
+                ejecucionesExitosas,
+                excepciones
+        );
     }
+
+    // ===========
+    // Throughput
+    // ===========
+
+    private ResultadoThroughput medirThroughputCalcularTotal(
+            GestorGastos gestor) {
+
+        int ejecuciones = 1000;
+        int ejecucionesReales = 0;
+        int excepciones = 0;
+
+        double suma = 0;
+
+        for (int i = 0; i < ejecuciones; i++) {
+
+            long inicio = System.nanoTime();
+
+            try {
+                gestor.calcularTotal();
+                ejecucionesReales++;
+
+            } catch (Exception e) {
+                excepciones++;
+                System.err.println(
+                        "Error en calcularTotal(): "
+                                + e.getMessage()
+                );
+            }
+
+            long fin = System.nanoTime();
+
+            suma += (fin - inicio);
+        }
+
+        double tiempoTotalSegundos =
+                suma / 1_000_000_000;
+
+        double throughput =
+                ejecucionesReales / tiempoTotalSegundos;
+
+        return new ResultadoThroughput(
+                throughput,
+                ejecucionesReales,
+                excepciones
+        );
+    }
+
+    private ResultadoThroughput medirThroughputCalcularTotalPorCategoria(
+            GestorGastos gestor) {
+
+        int ejecuciones = 1000;
+        int ejecucionesReales = 0;
+        int excepciones = 0;
+
+        double suma = 0;
+
+        for (int i = 0; i < ejecuciones; i++) {
+
+            long inicio = System.nanoTime();
+
+            try {
+                gestor.calcularTotalPorCategoria(
+                        Categoria.ALIMENTACION
+                );
+
+                ejecucionesReales++;
+
+            } catch (Exception e) {
+                excepciones++;
+                System.err.println(
+                        "Error en calcularTotalPorCategoria(): "
+                                + e.getMessage()
+                );
+            }
+
+            long fin = System.nanoTime();
+
+            suma += (fin - inicio);
+        }
+
+        double tiempoTotalSegundos =
+                suma / 1_000_000_000;
+
+        double throughput =
+                ejecucionesReales / tiempoTotalSegundos;
+
+        return new ResultadoThroughput(
+                throughput,
+                ejecucionesReales,
+                excepciones
+        );
+    }
+
+    private ResultadoThroughput medirThroughputRegistrarGasto(
+            GestorGastos gestor) {
+
+        int ejecuciones = 1000;
+        int ejecucionesReales = 0;
+        int excepciones = 0;
+
+        double suma = 0;
+
+        for (int i = 0; i < ejecuciones; i++) {
+
+            long inicio = System.nanoTime();
+
+            try {
+                gestor.registrarGasto(
+                        "Gasto throughput " + i,
+                        new BigDecimal("18000"),
+                        Categoria.ALIMENTACION,
+                        LocalDate.of(2026, 8, 16)
+                );
+
+                ejecucionesReales++;
+
+            } catch (Exception e) {
+                excepciones++;
+                System.err.println(
+                        "Error en registrarGasto(): "
+                                + e.getMessage()
+                );
+            }
+
+            long fin = System.nanoTime();
+
+            suma += (fin - inicio);
+        }
+
+        double tiempoTotalSegundos =
+                suma / 1_000_000_000;
+
+        double throughput =
+                ejecucionesReales / tiempoTotalSegundos;
+
+        return new ResultadoThroughput(
+                throughput,
+                ejecucionesReales,
+                excepciones
+        );
+    }
+
+    // ================
+    // TIEMPO PROMEDIO
+    // ================
 
     @Test
     void medirRendimientoRegistrarGasto() {
 
-        // Arrange
-        GestorGastosTest.FakeGastoRepository repository1000 =
-                crearRepositoryConGastos(1000);
-
-        GestorGastosTest.FakeGastoRepository repository10000 =
-                crearRepositoryConGastos(10000);
-
-        GestorGastosTest.FakeGastoRepository repository100000 =
-                crearRepositoryConGastos(100000);
-
-        GestorGastos gestor1000 = new GestorGastos(repository1000);
-        GestorGastos gestor10000 = new GestorGastos(repository10000);
-        GestorGastos gestor100000 = new GestorGastos(repository100000);
+        // Arrange - en BeforeEach
 
         // Act
-        double tiempo1000 = medirTiempoRegistrarGasto(gestor1000);
-        double tiempo10000 = medirTiempoRegistrarGasto(gestor10000);
-        double tiempo100000 = medirTiempoRegistrarGasto(gestor100000);
+        ResultadoTiempo resultado1000 =
+                medirTiempoRegistrarGasto(gestor1000);
+
+        ResultadoTiempo resultado10000 =
+                medirTiempoRegistrarGasto(gestor10000);
+
+        ResultadoTiempo resultado100000 =
+                medirTiempoRegistrarGasto(gestor100000);
 
         // Assert
-        assertTrue(tiempo1000 > 0);
-        assertTrue(tiempo10000 > 0);
-        assertTrue(tiempo100000 > 0);
+        assertTrue(resultado1000.tiempoPromedio() <= 1.0);
+        assertTrue(resultado10000.tiempoPromedio() <= 2.0);
+        assertTrue(resultado100000.tiempoPromedio() <= 10.0);
 
-        System.out.println("Registrar gasto - 1.000 registros: " + tiempo1000 + " ms");
-        System.out.println("Registrar gasto - 10.000 registros: " + tiempo10000 + " ms");
-        System.out.println("Registrar gasto - 100.000 registros: " + tiempo100000 + " ms");
+        assertEquals(100, resultado1000.ejecucionesExitosas());
+        assertEquals(100, resultado10000.ejecucionesExitosas());
+        assertEquals(100, resultado100000.ejecucionesExitosas());
+
+        assertEquals(0, resultado1000.excepciones());
+        assertEquals(0, resultado10000.excepciones());
+        assertEquals(0, resultado100000.excepciones());
+
+        System.out.println(
+                "Registrar gasto - 1.000 registros: "
+                        + resultado1000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado1000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado1000.excepciones()
+        );
+
+        System.out.println(
+                "Registrar gasto - 10.000 registros: "
+                        + resultado10000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado10000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado10000.excepciones()
+        );
+
+        System.out.println(
+                "Registrar gasto - 100.000 registros: "
+                        + resultado100000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado100000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado100000.excepciones() + "\n"
+        );
     }
 
     @Test
     void medirRendimientoCalcularTotal() {
 
-        // Arrange
-        GestorGastosTest.FakeGastoRepository repository1000 = crearRepositoryConGastos(1000);
-        GestorGastosTest.FakeGastoRepository repository10000 = crearRepositoryConGastos(10000);
-        GestorGastosTest.FakeGastoRepository repository100000 = crearRepositoryConGastos(100000);
-
-        GestorGastos gestor1000 = new GestorGastos(repository1000);
-        GestorGastos gestor10000 = new GestorGastos(repository10000);
-        GestorGastos gestor100000 = new GestorGastos(repository100000);
+        // Arrange - en BeforeEach
 
         // Act
-        double tiempo1000 = medirTiempoCalcularTotal(gestor1000);
-        double tiempo10000 = medirTiempoCalcularTotal(gestor10000);
-        double tiempo100000 = medirTiempoCalcularTotal(gestor100000);
+        ResultadoTiempo resultado1000 =
+                medirTiempoCalcularTotal(gestor1000);
+
+        ResultadoTiempo resultado10000 =
+                medirTiempoCalcularTotal(gestor10000);
+
+        ResultadoTiempo resultado100000 =
+                medirTiempoCalcularTotal(gestor100000);
 
         // Assert
-        assertTrue(tiempo1000 > 0);
-        assertTrue(tiempo10000 > 0);
-        assertTrue(tiempo100000 > 0);
+        assertTrue(resultado1000.tiempoPromedio() <= 1.0);
+        assertTrue(resultado10000.tiempoPromedio() <= 2.0);
+        assertTrue(resultado100000.tiempoPromedio() <= 10.0);
 
-        System.out.println("Calcular total - 1.000 registros: " + tiempo1000 + " ms");
-        System.out.println("Calcular total - 10.000 registros: " + tiempo10000 + " ms");
-        System.out.println("Calcular total - 100.000 registros: " + tiempo100000 + " ms");
+        assertEquals(100, resultado1000.ejecucionesExitosas());
+        assertEquals(100, resultado10000.ejecucionesExitosas());
+        assertEquals(100, resultado100000.ejecucionesExitosas());
+
+        assertEquals(0, resultado1000.excepciones());
+        assertEquals(0, resultado10000.excepciones());
+        assertEquals(0, resultado100000.excepciones());
+
+        System.out.println(
+                "Calcular total - 1.000 registros: "
+                        + resultado1000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado1000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado1000.excepciones()
+        );
+
+        System.out.println(
+                "Calcular total - 10.000 registros: "
+                        + resultado10000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado10000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado10000.excepciones()
+        );
+
+        System.out.println(
+                "Calcular total - 100.000 registros: "
+                        + resultado100000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado100000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado100000.excepciones() + "\n"
+        );
     }
 
     @Test
     void medirRendimientoCalcularTotalPorCategoria() {
 
-        // Arrange
-        GestorGastosTest.FakeGastoRepository repository1000 = crearRepositoryConGastos(1000);
-        GestorGastosTest.FakeGastoRepository repository10000 = crearRepositoryConGastos(10000);
-        GestorGastosTest.FakeGastoRepository repository100000 = crearRepositoryConGastos(100000);
-
-        GestorGastos gestor1000 = new GestorGastos(repository1000);
-        GestorGastos gestor10000 = new GestorGastos(repository10000);
-        GestorGastos gestor100000 = new GestorGastos(repository100000);
+        // Arrange - en BeforeEach
 
         // Act
-        double tiempo1000 =
+        ResultadoTiempo resultado1000 =
                 medirTiempoCalcularTotalPorCategoria(gestor1000);
 
-        double tiempo10000 =
+        ResultadoTiempo resultado10000 =
                 medirTiempoCalcularTotalPorCategoria(gestor10000);
 
-        double tiempo100000 =
+        ResultadoTiempo resultado100000 =
                 medirTiempoCalcularTotalPorCategoria(gestor100000);
 
         // Assert
-        assertTrue(tiempo1000 > 0);
-        assertTrue(tiempo10000 > 0);
-        assertTrue(tiempo100000 > 0);
+        assertTrue(resultado1000.tiempoPromedio() <= 1.0);
+        assertTrue(resultado10000.tiempoPromedio() <= 2.0);
+        assertTrue(resultado100000.tiempoPromedio() <= 10.0);
+
+        assertEquals(100, resultado1000.ejecucionesExitosas());
+        assertEquals(100, resultado10000.ejecucionesExitosas());
+        assertEquals(100, resultado100000.ejecucionesExitosas());
+
+        assertEquals(0, resultado1000.excepciones());
+        assertEquals(0, resultado10000.excepciones());
+        assertEquals(0, resultado100000.excepciones());
 
         System.out.println(
                 "Total por categoría - 1.000 registros: "
-                        + tiempo1000 + " ms"
+                        + resultado1000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado1000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado1000.excepciones()
         );
 
         System.out.println(
                 "Total por categoría - 10.000 registros: "
-                        + tiempo10000 + " ms"
+                        + resultado10000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado10000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado10000.excepciones()
         );
 
         System.out.println(
                 "Total por categoría - 100.000 registros: "
-                        + tiempo100000 + " ms"
+                        + resultado100000.tiempoPromedio()
+                        + " ms | Ejecuciones: "
+                        + resultado100000.ejecucionesExitosas()
+                        + "/100 | Excepciones: "
+                        + resultado100000.excepciones() + "\n"
+        );
+    }
+
+    // ===========
+    // Throughput
+    // ===========
+
+    @Test
+    void medirThroughputCalcularTotal() {
+
+        // Arrange
+        int ejecucionesEsperadas = 1000;
+
+        // Act
+        ResultadoThroughput resultado1000 =
+                medirThroughputCalcularTotal(gestor1000);
+
+        ResultadoThroughput resultado10000 =
+                medirThroughputCalcularTotal(gestor10000);
+
+        ResultadoThroughput resultado100000 =
+                medirThroughputCalcularTotal(gestor100000);
+
+        // Assert
+        assertTrue(resultado1000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertTrue(resultado10000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertTrue(resultado100000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+        assertEquals(0, resultado1000.excepciones());
+        assertEquals(0, resultado10000.excepciones());
+        assertEquals(0, resultado100000.excepciones());
+
+        System.out.println(
+                "Calcular total - 1.000 registros: "
+                        + resultado1000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado1000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas
+        );
+
+        System.out.println(
+                "Calcular total - 10.000 registros: "
+                        + resultado10000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado10000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas
+        );
+
+        System.out.println(
+                "Calcular total - 100.000 registros: "
+                        + resultado100000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado100000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas + "\n"
+        );
+    }
+
+    @Test
+    void medirThroughputCalcularTotalPorCategoria() {
+
+        // Arrange
+        int ejecucionesEsperadas = 1000;
+
+        // Act
+        ResultadoThroughput resultado1000 =
+                medirThroughputCalcularTotalPorCategoria(gestor1000);
+
+        ResultadoThroughput resultado10000 =
+                medirThroughputCalcularTotalPorCategoria(gestor10000);
+
+        ResultadoThroughput resultado100000 =
+                medirThroughputCalcularTotalPorCategoria(gestor100000);
+
+        // Assert
+        assertTrue(resultado1000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertTrue(resultado10000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertTrue(resultado100000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertEquals(0, resultado1000.excepciones());
+        assertEquals(0, resultado10000.excepciones());
+        assertEquals(0, resultado100000.excepciones());
+
+        System.out.println(
+                "Total por categoría - 1.000 registros: "
+                        + resultado1000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado1000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas
+        );
+
+        System.out.println(
+                "Total por categoría - 10.000 registros: "
+                        + resultado10000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado10000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas
+        );
+
+        System.out.println(
+                "Total por categoría - 100.000 registros: "
+                        + resultado100000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado100000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas + "\n"
+        );
+    }
+
+    @Test
+    void medirThroughputRegistrarGasto() {
+
+        // Arrange
+        int ejecucionesEsperadas = 1000;
+
+        // Act
+        ResultadoThroughput resultado1000 =
+                medirThroughputRegistrarGasto(gestor1000);
+
+        ResultadoThroughput resultado10000 =
+                medirThroughputRegistrarGasto(gestor10000);
+
+        ResultadoThroughput resultado100000 =
+                medirThroughputRegistrarGasto(gestor100000);
+
+        // Assert
+        assertTrue(resultado1000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertTrue(resultado10000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertTrue(resultado100000.throughput() >= 100,
+                "El throughput debe ser de al menos 100 ops/s");
+
+        assertEquals(0, resultado1000.excepciones());
+        assertEquals(0, resultado10000.excepciones());
+        assertEquals(0, resultado100000.excepciones());
+
+        System.out.println(
+                "Registrar gasto - 1.000 registros: "
+                        + resultado1000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado1000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas
+        );
+
+        System.out.println(
+                "Registrar gasto - 10.000 registros: "
+                        + resultado10000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado10000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas
+        );
+
+        System.out.println(
+                "Registrar gasto - 100.000 registros: "
+                        + resultado100000.throughput()
+                        + " ops/s | Ejecuciones: "
+                        + resultado100000.ejecucionesReales()
+                        + "/" + ejecucionesEsperadas + "\n"
         );
     }
 
